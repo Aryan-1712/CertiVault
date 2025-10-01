@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Certificate Verification</title>
+    </head>
+<body>
+    <h1>Certificate Verification System</h1>
+
+    <form method="POST">
+        {% csrf_token %} <label for="ipfs_hash">Enter Certificate Hash:</label>
+        <input type="text" id="ipfs_hash" name="ipfs_hash" placeholder="e.g., QmXg...A2rT" required>
+        <button type="submit">Verify Certificate</button>
+    </form>
+
+    {% if verification_result %}
+        <hr>
+        <h2>Verification Result: {{ verification_result.status }}</h2>
+
+        <p style="color: {% if verification_result.is_valid %}green{% else %}red{% endif %};">
+            {{ verification_result.message | safe }}
+        </p>
+
+        {% if verification_result.is_valid %}
+            <div class="certificate-details">
+                <h3>Certificate Details</h3>
+                <p><strong>Holder Name:</strong> {{ verification_result.certificate_details.name }}</p>
+                <p><strong>Certificate ID:</strong> {{ verification_result.certificate_details.certificate_id }}</p>
+                <p><strong>Issue Date:</strong> {{ verification_result.certificate_details.issue_date }}</p>
+            </div>
+        {% endif %}
+    {% endif %}
+
+</body>
+</html>
