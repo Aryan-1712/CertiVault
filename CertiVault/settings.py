@@ -30,6 +30,12 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
 CSRF_TRUSTED_ORIGINS = ['https://certivault-52wn.onrender.com']
 
+# Ensures the session cookie is only sent over HTTPS
+SESSION_COOKIE_SECURE = True
+
+# Ensures the CSRF cookie is only sent over HTTPS
+CSRF_COOKIE_SECURE = True
+
 # Application definition
 
 INSTALLED_APPS = [
