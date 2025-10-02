@@ -1,4 +1,4 @@
-CertiVault: Secure Certificate Verification System
+CertiVault: Secure Certificate Verification
 
 CertiVault is a secure, web-based platform built with Django for issuing and verifying digital certificates. It uses a PostgreSQL database to store immutable certificate records, including a unique ID, recipient name, and an IPFS hash for authenticity, ensuring that all credentials can be verified against a single source of truth.
 
