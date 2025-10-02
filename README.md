@@ -7,7 +7,7 @@ The application is currently deployed and running live on Render:
 https://certivault-52wn.onrender.com
 
 🛠️ Technology Stack
-Backend: Python 3.x, Django 4.x
+Backend: Python 3.9.6, Django 4.2.24
 
 Database: PostgreSQL (Managed by Render)
 
@@ -19,7 +19,7 @@ Dependencies: gunicorn, dj-database-url, psycopg2-binary, whitenoise
 Follow these steps to get a local copy of the project running for development and testing.
 
 1. Clone the Repository
-git clone [https://github.com/your-username/CertiVault.git](https://github.com/your-username/CertiVault.git)
+git clone https://github.com/Aryan-1712/CertiVault.git
 cd CertiVault
 
 2. Create and Activate Virtual Environment
