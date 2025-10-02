@@ -112,6 +112,8 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
+SESSION_COOKIE_NAME = "certivault_session"
+
 USE_I18N = True
 
 USE_TZ = True
