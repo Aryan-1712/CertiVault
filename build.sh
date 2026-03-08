@@ -2,11 +2,12 @@
 # Exit immediately if any command fails
 set -o errexit
 
-# Install all dependencies
-pip install -r requirements.txt
+# Use python -m pip to ensure we install into the correct Python environment
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 
-# Collect static files (CSS, JS, images) into staticfiles/
+# Collect static files
 python manage.py collectstatic --noinput
 
-# Apply any pending database migrations
+# Apply database migrations
 python manage.py migrate
