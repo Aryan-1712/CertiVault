@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Exit on error
+# Exit immediately if any command fails
 set -o errexit
 
-# Install Python dependencies
+# Install all dependencies
 pip install -r requirements.txt
 
-# Collect static assets
-python manage.py collectstatic --no-input
+# Collect static files (CSS, JS, images) into staticfiles/
+python manage.py collectstatic --noinput
 
-# Apply database migrations
+# Apply any pending database migrations
 python manage.py migrate
