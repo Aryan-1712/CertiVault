@@ -2,34 +2,601 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Certificate Verification</title>
-    </head>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --gold: #c9a84c;
+            --gold-light: #e8c97a;
+            --gold-dim: #8a6e2f;
+            --ink: #0d0d0d;
+            --paper: #f5f0e8;
+            --paper-dark: #ede7d7;
+            --cream: #faf7f2;
+            --text-dim: #6b6050;
+            --success: #2e7d5e;
+            --error: #8b2020;
+            --border: rgba(201, 168, 76, 0.3);
+        }
+
+        body {
+            font-family: 'DM Mono', monospace;
+            background: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated background grid */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                    linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridDrift 20s linear infinite;
+        }
+
+        @keyframes gridDrift {
+            from { transform: translateY(0); }
+            to { transform: translateY(60px); }
+        }
+
+        /* Corner ornaments */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 24px; left: 24px; right: 24px; bottom: 24px;
+            border: 1px solid rgba(201, 168, 76, 0.12);
+            pointer-events: none;
+            border-radius: 2px;
+        }
+
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 680px;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 56px;
+            animation: fadeDown 0.8s ease both;
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(201, 168, 76, 0.08);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            padding: 6px 16px;
+            margin-bottom: 24px;
+        }
+
+        .badge-dot {
+            width: 6px; height: 6px;
+            background: var(--gold);
+            border-radius: 50%;
+            animation: pulse 2s ease infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .badge-text {
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+
+        .header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(36px, 6vw, 56px);
+            font-weight: 300;
+            color: var(--paper);
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+        }
+
+        .header h1 em {
+            font-style: italic;
+            color: var(--gold-light);
+        }
+
+        .header p {
+            font-size: 12px;
+            color: var(--text-dim);
+            letter-spacing: 0.08em;
+            line-height: 1.8;
+        }
+
+        /* Decorative divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 20px 0;
+        }
+        .divider-line { flex: 1; height: 1px; background: var(--border); }
+        .divider-glyph { color: var(--gold-dim); font-size: 14px; }
+
+        /* Main card */
+        .card {
+            background: var(--cream);
+            border: 1px solid rgba(201, 168, 76, 0.2);
+            border-radius: 4px;
+            padding: 48px;
+            position: relative;
+            animation: fadeUp 0.8s ease 0.2s both;
+            box-shadow:
+                    0 0 0 1px rgba(0,0,0,0.5),
+                    0 40px 80px rgba(0,0,0,0.6),
+                    inset 0 1px 0 rgba(255,255,255,0.5);
+        }
+
+        /* Corner ornaments on card */
+        .card::before, .card::after {
+            content: '✦';
+            position: absolute;
+            color: var(--gold);
+            font-size: 10px;
+            opacity: 0.6;
+        }
+        .card::before { top: 16px; left: 20px; }
+        .card::after { bottom: 16px; right: 20px; }
+
+        .card-corner-tr, .card-corner-bl {
+            position: absolute;
+            color: var(--gold);
+            font-size: 10px;
+            opacity: 0.6;
+        }
+        .card-corner-tr { top: 16px; right: 20px; }
+        .card-corner-bl { bottom: 16px; left: 20px; }
+
+        /* Form elements */
+        .form-label {
+            display: block;
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 28px;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            background: var(--paper);
+            border: 1px solid rgba(201, 168, 76, 0.25);
+            border-radius: 2px;
+            padding: 16px 20px 16px 50px;
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            color: var(--ink);
+            outline: none;
+            transition: all 0.3s ease;
+            letter-spacing: 0.04em;
+        }
+
+        .input-wrapper input::placeholder {
+            color: #b0a898;
+            font-style: italic;
+        }
+
+        .input-wrapper input:focus {
+            border-color: var(--gold);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: var(--gold-dim);
+            transition: color 0.3s;
+        }
+
+        .input-wrapper input:focus ~ .input-icon { color: var(--gold); }
+
+        /* Verify button */
+        .btn-verify {
+            width: 100%;
+            background: var(--ink);
+            color: var(--gold-light);
+            border: 1px solid var(--gold-dim);
+            border-radius: 2px;
+            padding: 16px 24px;
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .btn-verify::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(201,168,76,0.15), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
+        }
+
+        .btn-verify:hover::before { transform: translateX(100%); }
+
+        .btn-verify:hover {
+            background: rgba(201, 168, 76, 0.08);
+            border-color: var(--gold);
+            color: var(--gold);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+
+        .btn-verify:active { transform: translateY(0); }
+
+        .btn-verify svg { transition: transform 0.3s; }
+        .btn-verify:hover svg { transform: rotate(15deg); }
+
+        /* Loading state */
+        .btn-verify.loading .btn-text { opacity: 0; }
+        .spinner {
+            display: none;
+            width: 16px; height: 16px;
+            border: 2px solid rgba(201,168,76,0.3);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            position: absolute;
+        }
+        .btn-verify.loading .spinner { display: block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Result section */
+        .result-section {
+            margin-top: 32px;
+            display: none;
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .result-section.visible { display: block; }
+
+        .result-status-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            border-radius: 2px;
+            margin-bottom: 24px;
+            border: 1px solid;
+        }
+
+        .result-status-bar.valid {
+            background: rgba(46, 125, 94, 0.08);
+            border-color: rgba(46, 125, 94, 0.3);
+            color: var(--success);
+        }
+
+        .result-status-bar.invalid {
+            background: rgba(139, 32, 32, 0.08);
+            border-color: rgba(139, 32, 32, 0.3);
+            color: var(--error);
+        }
+
+        .status-icon { font-size: 18px; flex-shrink: 0; }
+
+        .status-info { flex: 1; }
+        .status-title {
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        .status-msg { font-size: 11px; opacity: 0.75; }
+
+        /* Certificate card */
+        .cert-card {
+            background: var(--paper-dark);
+            border: 1px solid rgba(201, 168, 76, 0.25);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .cert-card-header {
+            background: var(--ink);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cert-card-header span {
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+
+        .cert-card-header::before {
+            content: '';
+            width: 20px; height: 1px;
+            background: var(--gold-dim);
+        }
+
+        .cert-fields { padding: 28px 24px; display: grid; gap: 20px; }
+
+        .cert-field {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 12px;
+            align-items: start;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(201, 168, 76, 0.15);
+        }
+        .cert-field:last-child { border-bottom: none; padding-bottom: 0; }
+
+        .field-label {
+            font-size: 10px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            padding-top: 2px;
+        }
+
+        .field-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px;
+            font-weight: 400;
+            color: var(--ink);
+            line-height: 1.2;
+        }
+
+        .field-value.mono {
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            color: var(--gold-dim);
+            word-break: break-all;
+        }
+
+        /* Seal */
+        .cert-seal {
+            padding: 20px 24px;
+            background: rgba(201,168,76,0.05);
+            border-top: 1px solid rgba(201,168,76,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .seal-text {
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            color: var(--text-dim);
+        }
+
+        .seal-mark {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 13px;
+            font-style: italic;
+            color: var(--gold-dim);
+        }
+
+        /* Django template result (shown when Django renders it) */
+        .django-result { display: none; }
+
+        /* Animations */
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 32px;
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            color: rgba(255,255,255,0.2);
+            animation: fadeUp 0.8s ease 0.4s both;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .card { padding: 32px 24px; }
+            .cert-field { grid-template-columns: 1fr; gap: 4px; }
+        }
+
+    </style>
+</head>
 <body>
-    <h1>Certificate Verification System</h1>
 
-    <form method="POST">
-        {% csrf_token %} <label for="ipfs_hash">Enter Certificate Hash:</label>
-        <input type="text" id="ipfs_hash" name="ipfs_hash" placeholder="e.g., QmXg...A2rT" required>
-        <button type="submit">Verify Certificate</button>
-    </form>
+<div class="page-wrapper">
 
-    {% if verification_result %}
-        <hr>
-        <h2>Verification Result: {{ verification_result.status }}</h2>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-badge">
+            <div class="badge-dot"></div>
+            <span class="badge-text">Blockchain Secured</span>
+        </div>
+        <h1>Certificate<br><em>Verification</em></h1>
+        <div class="divider">
+            <div class="divider-line"></div>
+            <div class="divider-glyph">◆</div>
+            <div class="divider-line"></div>
+        </div>
+        <p>Enter an IPFS hash to authenticate and retrieve<br>a credential from the distributed ledger.</p>
+    </header>
 
-        <p style="color: {% if verification_result.is_valid %}green{% else %}red{% endif %};">
-            {{ verification_result.message | safe }}
-        </p>
+    <!-- Main Card -->
+    <div class="card">
+        <span class="card-corner-tr">✦</span>
+        <span class="card-corner-bl">✦</span>
 
-        {% if verification_result.is_valid %}
-            <div class="certificate-details">
-                <h3>Certificate Details</h3>
-                <p><strong>Holder Name:</strong> {{ verification_result.certificate_details.name }}</p>
-                <p><strong>Certificate ID:</strong> {{ verification_result.certificate_details.certificate_id }}</p>
-                <p><strong>Issue Date:</strong> {{ verification_result.certificate_details.issue_date }}</p>
+        <form method="POST" id="verifyForm">
+            {% csrf_token %}
+
+            <label class="form-label" for="ipfs_hash">Certificate Hash</label>
+            <div class="input-wrapper">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M13.5 10.5L21 3M16 3h5v5M10 14l-7 7M3 17l4 4"/>
+                    <circle cx="9" cy="9" r="4"/>
+                </svg>
+                <input
+                        type="text"
+                        id="ipfs_hash"
+                        name="ipfs_hash"
+                        placeholder="e.g., QmXg9Pp2ytZnifjeRbexXt7vavJD8TZZReFuLS9BS6Y…"
+                        required
+                        autocomplete="off"
+                        spellcheck="false"
+                >
             </div>
+
+            <button type="submit" class="btn-verify" id="verifyBtn">
+                <div class="spinner"></div>
+                <span class="btn-text" style="display:flex;align-items:center;gap:10px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Verify Certificate
+                </span>
+            </button>
+        </form>
+
+        <!-- ======================================================= -->
+        <!-- DJANGO TEMPLATE RESULT (rendered server-side)           -->
+        <!-- ======================================================= -->
+        {% if verification_result %}
+        <div id="djangoResultSection" data-has-result="true" class="result-section visible" style="margin-top:32px;">
+            <div class="result-status-bar {% if verification_result.is_valid %}valid{% else %}invalid{% endif %}">
+                <div class="status-icon">{% if verification_result.is_valid %}✓{% else %}✗{% endif %}</div>
+                <div class="status-info">
+                    <div class="status-title">{{ verification_result.status }}</div>
+                    <div class="status-msg">{{ verification_result.message | safe }}</div>
+                </div>
+            </div>
+
+            {% if verification_result.is_valid %}
+            <div class="cert-card">
+                <div class="cert-card-header">
+                    <span>Certificate Details</span>
+                </div>
+                <div class="cert-fields">
+                    <div class="cert-field">
+                        <div class="field-label">Holder Name</div>
+                        <div class="field-value">{{ verification_result.certificate_details.name }}</div>
+                    </div>
+                    <div class="cert-field">
+                        <div class="field-label">Certificate ID</div>
+                        <div class="field-value mono">{{ verification_result.certificate_details.certificate_id }}</div>
+                    </div>
+                    <div class="cert-field">
+                        <div class="field-label">Issue Date</div>
+                        <div class="field-value">{{ verification_result.certificate_details.issue_date }}</div>
+                    </div>
+                </div>
+                <div class="cert-seal">
+                    <span class="seal-text">Verified via IPFS · Immutable Record</span>
+                    <span class="seal-mark">Authentic ✦</span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
         {% endif %}
-    {% endif %}
+        <!-- ======================================================= -->
+
+        <!-- INTERACTIVE DEMO RESULT (JS only, hidden when Django renders) -->
+        <div class="result-section demo-only" id="resultSection">
+            <div class="result-status-bar" id="statusBar">
+                <div class="status-icon" id="statusIcon"></div>
+                <div class="status-info">
+                    <div class="status-title" id="statusTitle"></div>
+                    <div class="status-msg" id="statusMsg"></div>
+                </div>
+            </div>
+            <div class="cert-card" id="certCard" style="display:none;">
+                <div class="cert-card-header"><span>Certificate Details</span></div>
+                <div class="cert-fields">
+                    <div class="cert-field">
+                        <div class="field-label">Holder Name</div>
+                        <div class="field-value" id="certName">—</div>
+                    </div>
+                    <div class="cert-field">
+                        <div class="field-label">Certificate ID</div>
+                        <div class="field-value mono" id="certId">—</div>
+                    </div>
+                    <div class="cert-field">
+                        <div class="field-label">Issue Date</div>
+                        <div class="field-value" id="certDate">—</div>
+                    </div>
+                </div>
+                <div class="cert-seal">
+                    <span class="seal-text">Verified via IPFS · Immutable Record</span>
+                    <span class="seal-mark">Authentic ✦</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <span>◆ &nbsp; Secured by IPFS · Distributed Ledger Technology &nbsp; ◆</span>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('verifyForm');
+    const btn = document.getElementById('verifyBtn');
+
+    // Show loading spinner on real form submit (Django handles the rest)
+    form.addEventListener('submit', function() {
+        btn.classList.add('loading');
+    });
+
+    // If Django returned a result, show the result section and hide demo section
+    const djangoResult = document.getElementById('djangoResultSection');
+    const demoResult = document.getElementById('resultSection');
+
+    if (djangoResult && djangoResult.dataset.hasResult === 'true') {
+        if (demoResult) demoResult.style.display = 'none';
+    }
+</script>
 
 </body>
 </html>

@@ -1,0 +1,14 @@
+user - Aryan
+mail - aryan@gmail.com
+pass - 12345678
+
+Data so far...
+    username - Aryan Sharma
+    issue date - 8/03/2026
+    Certificate_ID - Data_Science_Python
+    IPFS Hash - 123abc456xyz
+
+    username - Oni
+    issue date - 1/09/2025
+    Certificate_ID - Cert-1
+    IPFS Hash - xyzabc123987
